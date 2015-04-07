@@ -76,8 +76,6 @@
 
 (defn ready-state
   [e]
-  (.log js/console e)
-  (pr "Ready state is " (.-readyState (.-target e)))
   ({0 :not-initialized
     1 :connection-established
     2 :request-received
