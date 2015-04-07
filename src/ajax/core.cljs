@@ -74,6 +74,16 @@
   (-was-aborted [this]
     (= (.getLastErrorCode this) goog.net.ErrorCode/ABORT)))
 
+(defn ready-state
+  [e]
+  (.log js/console e)
+  (pr "Ready state is " (.-readyState (.-target e)))
+  ({0 :not-initialized
+    1 :connection-established
+    2 :request-received
+    3 :processing-request
+    4 :response-ready} (.-readyState (.-target e))))
+
 (extend-type js/XMLHttpRequest
   AjaxImpl
   (-js-ajax-request
@@ -83,7 +93,7 @@
            timeout 0}}]
     (set! (.-timeout this) timeout)
     (set! (.-withCredentials this) with-credentials)
-    (set! (.-onreadystatechange this) #(handler this))
+    (set! (.-onreadystatechange this) #(when (= :response-ready (ready-state %)) (handler this)))
     (doto this
       (.open method uri true)
       (as-> t
