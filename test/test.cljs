@@ -19,6 +19,7 @@
                       interpret-response
                       default-formats
                       submittable?
+                      -body
                       POST GET]])
   (:require-macros [cemerick.cljs.test :refer (is deftest with-test run-tests testing)]))
 
@@ -143,30 +144,20 @@
     (ajax-request {:handler #(reset! r1 %)
                    :format (url-request-format)
                    :response-format (raw-response-format)
-                   :manager simple-reply})
+                   :api simple-reply})
     (expect-simple-reply @r1 "{:a 1}")
     ;; Alternative usage with unrolled arguments.
     (POST nil
           :handler #(reset! r2 %)
           :format :url
           :response-format (raw-response-format)
-          :manager simple-reply)
+          :api simple-reply)
     (is (= "{:a 1}" @r2))
     ;; Test format detection runs all the way through
     (POST nil {:handler #(reset! r3 %)
                :format :url
-               :manager simple-reply})
-    (is (= {:a 1} @r3) "Format detection didn't work")
-    (POST nil {:params (js/FormData.)
-               :manager simple-reply})
-    (GET "/" {:params {:a 3}
-              :manager simple-reply}
-    (GET "/" {:params {:a 3}
-              :manager simple-reply}
-         :response-format [:json :raw])
-    (GET "/" {:params {:a 3}
-              :manager simple-reply}
-              :response-format [:json ["text/plain" :raw]]))))
+               :api simple-reply})
+    (is (= {:a 1} @r3) "Format detection didn't work")))
 
 (deftest format-interpretation
   (is (map? (keyword-response-format {} {}))))
